@@ -8,11 +8,9 @@ from app.internal.services.logger import *
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.message.from_user
     user_db = TelegramUser(name=user.first_name, is_bot=user.is_bot, language_code=user.language_code, username=user.username, id=user.id)
-    if(not await check_user_existence(user.id)):
-
+    if (not await check_user_existence(user.id)):
         await context.bot.send_message(chat_id=update.effective_chat.id, text="Merhaba!\n\nЗдравствуйте!")
         await save_user_to_db(user_db)
-        c = await get_user_count()
         await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Sizi veritabanına ekledim\n\nЯ добавил Вас в базу данных")
         btns = [KeyboardButton(text="/set_phone")]
         keyboard = [btns]
@@ -26,7 +24,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.message.from_user
     logger.info(user)
-    if(await check_user_phone(user.id)):
+    if (await check_user_phone(user.id)):
         await context.bot.send_message(chat_id=update.effective_chat.id, text='Anlamıyorum. Sorunu @MariyaViktorovna yazın\n\nЯ не понимаю Вас. Напишите свой вопрос @MariyaViktorovna')
     else:
         if check_phone_number(update.message.text):
@@ -42,7 +40,7 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def set_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.message.from_user
-    if(await check_user_phone(user.id)) :
+    if (await check_user_phone(user.id)) :
         await update.message.reply_text(text='Veri tabanında telefon numaranız var\n\nВаш номер телефона есть в базе')
     else:
         await context.bot.send_message(chat_id=update.effective_chat.id, text='Telefon numaranızı girin\n\nВведите свой номер телефона')
@@ -51,7 +49,7 @@ async def set_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def me(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.message.from_user
     if (await check_user_existence(user.id)):
-        if(await check_user_phone(user.id)) :
+        if (await check_user_phone(user.id)) :
             cur_user = await get_user_by_id(user.id)
             particle_t = 'botsunuz' if cur_user.is_bot else 'bot değilsiniz'
             particle_r = '' if cur_user.is_bot else 'не'

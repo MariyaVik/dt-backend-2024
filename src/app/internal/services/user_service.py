@@ -25,7 +25,7 @@ def save_phone_number(id: int, number: str):
 @sync_to_async
 def check_user_phone(id: int):
     cur_user = TelegramUser.objects.get(id=id)
-    if(cur_user.phone_number != None):
+    if cur_user.phone_number is not None:
         return True
     else:
         return False
