@@ -13,4 +13,4 @@ def me(request, telegram_user):
         serializer = UserSerializer(user)
         return JsonResponse(serializer.data)
     else:
-        return HttpResponse(f"Пользователя нет в нашей базе")
+        return HttpResponse(f"Пользователя {telegram_user} нет в нашей базе")

@@ -1,6 +1,6 @@
 import re
 from asgiref.sync import sync_to_async
-from src.app.internal.models.user_model import TelegramUser
+from app.internal.models.user_model import TelegramUser
 
 
 def check_phone_number(phone_number):
@@ -39,7 +39,7 @@ def save_user_to_db(user: TelegramUser):
     user.save()
 
 @sync_to_async
-def check_record_existence(id: int):
+def check_user_existence(id: int):
     """
     Проверяет наличие записи в базе данных.
     

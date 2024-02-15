@@ -2,9 +2,8 @@
 import os
 import django
 
-from src.app.internal.transport.bot.handlers import *
-
-# СДЕЛАТЬ РУЧКУ
+from config.wsgi import *
+from app.internal.transport.bot.handlers import *
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 django.setup()

@@ -1,19 +1,19 @@
 from telegram import KeyboardButton, ReplyKeyboardMarkup, Update
 from telegram.ext import ContextTypes
-from src.app.internal.models.user_model import TelegramUser
-from src.app.internal.services.user_service import *
-from src.app.internal.services.logger import *
+from app.internal.models.user_model import TelegramUser
+from app.internal.services.user_service import *
+from app.internal.services.logger import *
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.message.from_user
     user_db = TelegramUser(name=user.first_name, is_bot=user.is_bot, language_code=user.language_code, username=user.username, id=user.id)
-    if(not await check_record_existence(user.id)):
+    if(not await check_user_existence(user.id)):
 
         await context.bot.send_message(chat_id=update.effective_chat.id, text="Merhaba!\n\nЗдравствуйте!")
         await save_user_to_db(user_db)
         c = await get_user_count()
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Sizi veritabanına ekledim. Orada {c} kullanıcı var\n\nЯ добавил Вас в базу данных")
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Sizi veritabanına ekledim\n\nЯ добавил Вас в базу данных")
         btns = [KeyboardButton(text="/set_phone")]
         keyboard = [btns]
         reply_markup = ReplyKeyboardMarkup(keyboard=keyboard, one_time_keyboard=True)
@@ -50,26 +50,29 @@ async def set_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def me(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.message.from_user
-    if(await check_user_phone(user.id)) :
-        cur_user = await get_user_by_id(user.id)
-        particle_t = 'botsunuz' if cur_user.is_bot else 'bot değilsiniz'
-        particle_r = '' if cur_user.is_bot else 'не'
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=f'''
-Verileriniz:
-    * Adınız - {cur_user.name}
-    * Telefon numaranız - {cur_user.phone_number}
-    * Takma adınız - @{cur_user.username}
-    * Ve siz {particle_t}
+    if (await check_user_existence(user.id)):
+        if(await check_user_phone(user.id)) :
+            cur_user = await get_user_by_id(user.id)
+            particle_t = 'botsunuz' if cur_user.is_bot else 'bot değilsiniz'
+            particle_r = '' if cur_user.is_bot else 'не'
+            await context.bot.send_message(chat_id=update.effective_chat.id, text=f'''
+    Verileriniz:
+        * Adınız - {cur_user.name}
+        * Telefon numaranız - {cur_user.phone_number}
+        * Takma adınız - @{cur_user.username}
+        * Ve siz {particle_t}
 
-Ваши данные:
-    * Имя - {cur_user.name}
-    * Номер телефона - {cur_user.phone_number}
-    * Никнейм - @{cur_user.username}
-    * И Вы {particle_r} бот
-''')
+    Ваши данные:
+        * Имя - {cur_user.name}
+        * Номер телефона - {cur_user.phone_number}
+        * Никнейм - @{cur_user.username}
+        * И Вы {particle_r} бот
+    ''')
+        else:
+            await context.bot.send_message(chat_id=update.effective_chat.id, text='Devam etmek için telefon numaranızı girmelisiniz\n\nДля продолжения необходимо ввести свой номер телефона')
+            echo(Update, ContextTypes.DEFAULT_TYPE)
     else:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text='Devam etmek için telefon numaranızı girmelisiniz\n\nДля продолжения необходимо ввести свой номер телефона')
-        echo(Update, ContextTypes.DEFAULT_TYPE)
+        await context.bot.send_message(chat_id=update.effective_chat.id, text='Veritabanımızda değilsiniz. Hadi tanışalım!\n/start komutunu girin\n\nВас нет в нашей базе. Давайте знакомиться!\nВведите команду /start ')
 
 async def caps(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text_caps = ' '.join(context.args).upper()
